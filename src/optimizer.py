@@ -46,6 +46,21 @@ class RaidOptimizer:
 
         return self._find_best_party(pool)
     
+    def _backtrack_solve(self, pool, current_result):
+        # 필요한 파티 수가 모두 찼다면 결과 반환
+        needed_parties = 2 if self.raid.max_players == 8 else 1 #예시
+        if len(current_result) == needed_parties:
+            return current_result
+        
+        # 조합 탐색
+        for combo in itertools.combinations(pool, self.raid.max_players):
+            if self._is_valid_party(list(combo)):
+                # 사용한 캐릭터를 제외한 새로운 풀 생성
+                remaining_pool = [c for c in pool if c not in combo]
+                res = self._backtrack_solve(remaining_pool, current_result + [list(combo)])
+                if res: return res
+        return None # 가능한 조합이 없는 경우
+    
     def _prepare_character_pool(self) -> List[Character]:
         pool = []
         for m in self.members:
@@ -70,16 +85,16 @@ class RaidOptimizer:
     
     def _is_valid_party(self, party: List[Character]) -> bool:
         # 규칙 1: 동일 유저 중복 불가
-        onwer_ids = [c.owner_id for c in party]
+        owner_ids = [c.owner_id for c in party]
         if len(owner_ids) != len(set(owner_ids)): return False
 
         # 규칙 2: 서포터 수 확인 (Hybrid 포함)
-        potential_supps = [c for c in party if c.user_set_role in ['Support', 'Hybrid']]
+        potential_supps = [c for c in party if c.user_set_role in ['서폿', '딜폿']]
         if len(potential_supps) < self.required_supps: return False
 
         # 규칙 3: 본캐 서폿 - 본캐 딜러 짝궁(5인 이상 시)
-        main_supps = [c for c in party if c.is_main and c.user_set_role in ['Support', 'Hybrid']]
-        main_dps = [c for c in party if c.is_main and c.user_set_role == 'DPS']
+        main_supps = [c for c in party if c.is_main and c.user_set_role in ['서폿', '딜폿']]
+        main_dps = [c for c in party if c.is_main and c.user_set_role == '딜러']
 
         # 규칙 4: 직업 중복 체크 (역할까지 고려)
         # (직업명, 역할) 튜플을 만들어 중복을 체크한다

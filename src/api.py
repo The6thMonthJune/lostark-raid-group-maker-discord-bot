@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class LostArkAPI:
-    BASE_URL = "https://developer.lostark.game.onstove.com"
+    BASE_URL = "https://developer-lostark.game.onstove.com"
     HEADERS = {
         'accept' : 'application/json',
         'authorization' : f"bearer {os.getenv('LOSTARK_API_KEY')}"

@@ -1,6 +1,7 @@
 import discord
+from models import GuildMember
 
-class RoleSetupView(discord.ui.view):
+class RoleSetupView(discord.ui.View):
     def __init__(self, member: GuildMember):
         super().__init__(timeout = None)
         self.member = member

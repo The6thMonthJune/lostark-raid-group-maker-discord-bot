@@ -19,7 +19,7 @@ class Character:
         직업명을 보고 기본 역할을 추측한다.
         """
         support_jobs = ['바드', '도화가', '홀라나이트', '발키리']
-        return 'Support' if job in support_jobs else 'DPS'
+        return '서폿' if job in support_jobs else '딜러'
 
 @dataclass
 class GuildMember:
@@ -39,9 +39,24 @@ class GuildMember:
         member = cls(discord_id = discord_id, main_char_name = main_char_name)
 
         for char_data in api_data:
-            name = char_data['CharacterName']
-            job = char_data['CharacterClassName']
-            level = float(char_data['ItemMaxLevel'].replace(',',''))
+            name = char_data.get('CharacterName')
+            job = char_data.get('CharacterClassName')
+
+            # ItemAvgLevel이 없는 경우를 대비해 get()사용 및 기본값 설정 (없으면 '0' 기본값)
+            raw_level = char_data.get('ItemAvgLevel', 0)
+            # if raw_level is None: # 가끔 데이터가 있어도 None이 오는 경우 대비
+            #     raw_level = '0'
+            
+            # 2. 숫자(int/float)로 들어올 경우를 대비해 문자열로 강제 변환 후 처리
+            # "1,747.50" -> "1747.50" -> 1747.5
+            try:
+                level = float(str(raw_level).repalce(',',''))
+            except(ValueError, AttributeError):
+                level = 0.0
+
+            # level = float(raw_level.replace(',', ''))
+
+            # level = float(char_data['ItemMaxLevel'].replace(',',''))
 
             #본캐 여부 판단(입력받은 대표 캐릭터명과 일치하는지)
             is_main = (name == main_char_name)

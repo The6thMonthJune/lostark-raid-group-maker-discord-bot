@@ -6,13 +6,13 @@ class Character:
     name: str
     job: str
     item_level: float
-    user_set_role: str
+    user_set_role: str = "딜러"
+    is_main: bool = False
+    is_entropy: bool = False
     """
     사용자가 설정한 역할: DPS, Support, Hybrid
     초기값은 API 기반으로 추측하되, 사용자가 수정한 값을 우선시함.
     """
-    is_main: bool = False # 본캐 여부
-
     @classmethod
     def determine_default_role(cls, job: str) -> str:
         """
@@ -50,7 +50,7 @@ class GuildMember:
             # 2. 숫자(int/float)로 들어올 경우를 대비해 문자열로 강제 변환 후 처리
             # "1,747.50" -> "1747.50" -> 1747.5
             try:
-                level = float(str(raw_level).repalce(',',''))
+                level = float(str(raw_level).replace(',',''))
             except(ValueError, AttributeError):
                 level = 0.0
 

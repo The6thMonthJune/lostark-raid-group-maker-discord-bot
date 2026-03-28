@@ -41,7 +41,7 @@ async def match(interaction: discord.Interaction, raid: app_commands.Choice[str]
     await interaction.response.defer(ephemeral=True)
     
     # 1. [중요] DB에서 저장된 모든 맴버 로드
-    all_members = db.load_all_members()
+    all_members = db.load_all_members(interaction.guild_id)
 
     if not all_members:
         await interaction.followup.send("❌ 등록된 길드원이 없습니다. /등록을 먼저 해주세요.")
@@ -73,7 +73,7 @@ async def register(interaction: discord.Interaction, 대표캐릭명: str):
     
     member = GuildMember.from_api_json(interaction.user.id, 대표캐릭명, api_data)
 
-    db.save_member(member) # DB 저장
+    db.save_member(member, interaction.guild_id) # DB 저장
 
     tier_4_chars = [c for c in member.characters.values() if c.item_level >= 1640]
 

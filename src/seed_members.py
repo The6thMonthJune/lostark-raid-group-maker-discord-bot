@@ -8,6 +8,10 @@ from api import LostArkAPI
 from database import Database
 from models import GuildMember
 
+# ✏️ 테스트할 서버의 Discord 길드 ID를 입력하세요
+# (Discord 서버 우클릭 → 서버 ID 복사, 개발자 모드 활성화 필요)
+TEST_GUILD_ID = 123456789012345678
+
 # ✏️ 여기에 등록할 대표 캐릭터명 목록을 입력하세요
 MAIN_CHARS = [
     "이코옹",
@@ -31,7 +35,7 @@ def seed():
 
         member = GuildMember.from_api_json(fake_discord_id, char_name, api_data)
         tier4 = [c for c in member.characters.values() if c.item_level >= 1640]
-        db.save_member(member)
+        db.save_member(member, TEST_GUILD_ID)
 
         print(f"✅ 완료 (티어4 캐릭터 {len(tier4)}개)")
         success += 1

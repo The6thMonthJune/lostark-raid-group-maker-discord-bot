@@ -17,7 +17,8 @@ class Database:
             # 유저 테이블 이름  (이름: users)
             self.conn.execute(
                 """CREATE TABLE IF NOT EXISTS users
-                                (discord_id INTEGER PRIMARY KEY, main_char TEXT)"""
+                                (discord_id INTEGER, guild_id INTEGER, main_char TEXT,
+                                PRIMARY KEY (discord_id, guild_id))"""
             )
             # 캐릭터 테이블 (이름: characters)
             self.conn.execute(
@@ -27,11 +28,11 @@ class Database:
             )
         self.conn.commit()
 
-    def save_member(self, member):
+    def save_member(self, member, guild_id: int):
         with self.conn:
             self.conn.execute(
-                "INSERT OR REPLACE INTO users VALUES (?, ?)",
-                (member.discord_id, member.main_char_name),
+                "INSERT OR REPLACE INTO users VALUES (?, ?, ?)",
+                (member.discord_id, guild_id, member.main_char_name),
             )
             for char in member.characters.values():
                 is_ent = 1 if getattr(char, "is_entropy", False) else 0
@@ -49,9 +50,9 @@ class Database:
                 )
 
 
-    def load_all_members(self):
+    def load_all_members(self, guild_id: int):
         cur = self.conn.cursor()
-        self.cursor.execute("SELECT discord_id, main_char FROM users")
+        self.cursor.execute("SELECT discord_id, main_char FROM users WHERE guild_id = ?", (guild_id,))
         rows = self.cursor.fetchall()
 
         members_list = []  # 리스트 이름을 확실하게 members_list로 설정

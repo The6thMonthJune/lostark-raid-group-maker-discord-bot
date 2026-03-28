@@ -8,10 +8,17 @@ class RaidOptimizer:
         self.members = members
         self.raid = RAID_DATA[raid_key]
         self.total_rounds = total_rounds
+        # 라운드당 캐릭터 수 = min(참여 인원, 레이드 정원)을 4의 배수로 내림
+        # ex) 4명이 8인 레이드 → 4명이 파티 하나 채우고 나머지 4명은 공팟
+        n = min(len(members), self.raid.max_players)
+        self.chars_per_round = (n // 4) * 4
 
     def solve(self):
         """전체 라운드 매칭을 시도하는 메인 함수"""
         pool = self._prepare_character_pool()
+        if len(pool) < self.chars_per_round * self.total_rounds:
+            return None
+
         return self._backtrack_rounds(pool, 0, [])
 
     def _prepare_character_pool(self) -> List[Character]:
@@ -28,7 +35,7 @@ class RaidOptimizer:
             return result_so_far
 
         # 이번 라운드에 참여할 max_players 명을 뽑는 조합 탐색
-        for combo in itertools.combinations(pool, self.raid.max_players):
+        for combo in itertools.combinations(pool, self.chars_per_round):
             # 8인/16인 등을 파티(4인 단위)로 최적 분할 시도
             raid_structure = self._optimize_raid_structure(list(combo))
             
@@ -40,16 +47,13 @@ class RaidOptimizer:
 
     def _optimize_raid_structure(self, chars: List[Character]) -> Optional[List[List[Character]]]:
         """선택된 인원을 규칙에 맞게 4인 파티들로 쪼개고 시너지를 최적화함"""
-        # 규칙 1: 동일 유저 중복 불가 (공격대 전체 기준)
-        owner_ids = [c.owner_id for c in chars]
-        if len(owner_ids) != len(set(owner_ids)): return None
 
-        # 4인 레이드일 경우
-        if self.raid.max_players == 4:
+        # 4인 (파티 1개) - 4인 레이드 전체 또는 8인 레이드의 절반(공팟 나머지)
+        if len(chars) == 4:
             return [chars] if self._is_valid_party(chars) else None
 
-        # 8인 레이드일 경우 (최적 시너지 분할 탐색)
-        elif self.raid.max_players == 8:
+        # 8인 (파티 2개) - 8인 레이드를 길드원끼리 다 채울 때
+        elif len(chars) == 8:
             best_split = None
             max_score = -1
             
@@ -69,6 +73,10 @@ class RaidOptimizer:
             return self._simple_split(chars)
 
     def _is_valid_party(self, party: List[Character]) -> bool:
+        # 규칙 1: 동일 유저 중복 불가 (파티 기준)
+        owner_ids = [c.owner_id for c in party]
+        if len(owner_ids) != len(set(owner_ids)): return False
+
         # 규칙 2: 최소 서폿 1명 (딜폿 포함)
         if not any(c.user_set_role in ['서폿', '딜폿'] for c in party): return False
 

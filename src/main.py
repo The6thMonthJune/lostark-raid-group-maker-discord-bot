@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+
 import discord
 from discord import app_commands
 from optimizer import RAID_DATA
@@ -77,7 +81,7 @@ async def register(interaction: discord.Interaction, 대표캐릭명: str):
     view = RoleSetupView(member, db)
     
     await interaction.followup.send(
-        f"✅ {대표캐릭명}님의 캐릭터 {len(tier_4_chars)}개가 매칭 대상으로 등록되었습니다.\n 아래 버튼을 눌러 역할을 설정하세요!",
+        f"✅ {대표캐릭명}님의 캐릭터 {len(tier_4_chars)}개가 매칭 대상으로 등록되었습니다.\n 아래 버튼을 눌러 사멸/비사멸 혹은 서폿 직업의 경우 딜러/딜폿 여부를 설정하세요!",
         view=view
     )
 

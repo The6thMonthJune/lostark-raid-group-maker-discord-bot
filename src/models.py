@@ -18,7 +18,7 @@ class Character:
         """
         직업명을 보고 기본 역할을 추측한다.
         """
-        support_jobs = ['바드', '도화가', '홀라나이트', '발키리']
+        support_jobs = ['바드', '도화가', '홀리나이트', '발키리']
         return '서폿' if job in support_jobs else '딜러'
 
 @dataclass

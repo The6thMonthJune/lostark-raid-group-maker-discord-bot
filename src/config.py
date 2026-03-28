@@ -16,6 +16,8 @@ FLEXIBLE_ENTROPY_CLASS = ['브레이커', '가디언나이트']
 
 ENTROPY_SYNERGY_CLASS = ['워로드', '블레이드']
 
+SUPPORT_CLASSES = ['홀리나이트', '바드', '도화가', '발키리']
+
 @dataclass
 class RaidInfo:
     name: str
